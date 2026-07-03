@@ -3,6 +3,7 @@ import pygame
 from settings import Settings
 from ship import Ship
 from bullet import Bullet
+from alien import Alien
 
 class AlienInvasion:
     """Overall clas of the game"""
@@ -21,7 +22,8 @@ class AlienInvasion:
 
         self.ship = Ship(self) #creating ship and sending self
         self.bullets = pygame.sprite.Group() #making a gropu of sprites
-
+        self.aliens = pygame.sprite.Group()
+        self._create_fleet()
 
     def run_game(self):
         """Start the main loop for the game"""
@@ -42,11 +44,37 @@ class AlienInvasion:
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
 
+    def _create_fleet(self):
+        """creatres the fleet of aliens"""
+        """Creates until no room left on the row"""
+        """Spacing between rows is one alien height"""
+        """Spacing between alien is one alien width"""
+        alien = Alien(self)
+        alien_width, alien_height = alien.rect.size
+
+        current_x, current_y = alien_width, alien_height
+        while current_y < (self.settings.screen_height - 3 * alien_height):
+            while current_x < (self.settings.screen_width - 2 * alien_width):
+                self._create_alien(current_x, current_y)
+                current_x += 2 * alien_width 
+            #reset the first alien postion in the new row    
+            current_x = alien_width
+            current_y += 2 * alien_height
+        
+    def _create_alien(self, x_position, y_position):
+        """creates on alien in the row"""
+        new_alien = Alien(self)
+        new_alien.x = x_position
+        new_alien.rect.x = x_position
+        new_alien.rect.y = y_position
+        self.aliens.add(new_alien)   
+
     def _update_screen(self):
         self.screen.fill(self.settings.bg_color)
         self.ship.blitme() #drawing ship
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
+        self.aliens.draw(self.screen)
         # make the recent screen visible
         pygame.display.flip()
 

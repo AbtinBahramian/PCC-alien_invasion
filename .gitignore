@@ -2,3 +2,6 @@ __pycache__
 venv/
 blue_sky.py
 person.py
+star.py
+painting_star.py
+images/star.bmp
