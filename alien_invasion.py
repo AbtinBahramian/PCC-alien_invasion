@@ -12,11 +12,11 @@ class AlienInvasion:
         self.settings = Settings() # creating an instance of Settings to use its attributes
         self.clock = pygame.time.Clock()
 
-        #self.screen = pygame.display.set_mode((self.settings.screen_width,self.settings.screen_height))
+        self.screen = pygame.display.set_mode((self.settings.screen_width,self.settings.screen_height))
         #FullScreen
-        self.screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
-        self.settings.screen_height = self.screen.get_rect().height
-        self.settings.screen_width = self.screen.get_rect().width
+        #self.screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+        #self.settings.screen_height = self.screen.get_rect().height
+        #self.settings.screen_width = self.screen.get_rect().width
         pygame.display.set_caption("Alien Invasion")
 
         self.ship = Ship(self) #creating ship and sending self
@@ -28,7 +28,7 @@ class AlienInvasion:
         while True:
             self._check_events()
             self.ship.update()
-            self.bullets.update()
+            self._update_bullets()
             self._update_screen()
             self.clock.tick(60)
 
@@ -71,10 +71,19 @@ class AlienInvasion:
             #set the flag to False
             self.ship.moving_left = False
 
+    def _update_bullets(self):
+        """manages updating and deletin old bullets"""
+        self.bullets.update()
+        #deleting bullets as they go up the screen
+        for bullet in self.bullets.copy():
+            if bullet.rect.bottom <= 0:
+                self.bullets.remove(bullet)
+
     def _fire_bullet(self):
         """create new bullet and add it to bullets group"""
-        new_bullet = Bullet(self)
-        self.bullets.add(new_bullet)
+        if len(self.bullets) < self.settings.bullets_allowed:
+            new_bullet = Bullet(self)
+            self.bullets.add(new_bullet)
 
 if __name__ == "__main__":
     # make a game instance and run the game
