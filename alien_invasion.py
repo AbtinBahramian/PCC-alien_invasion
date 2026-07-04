@@ -6,6 +6,7 @@ from bullet import Bullet
 from alien import Alien
 from game_stats import GameStats
 from time import sleep
+from button import Button
 
 class AlienInvasion:
     """Overall clas of the game"""
@@ -28,7 +29,8 @@ class AlienInvasion:
         self.aliens = pygame.sprite.Group()
         self._create_fleet()
 
-        self.game_active = True
+        self.play_button = Button(self, "Play")
+        self.game_active = False
 
     def run_game(self):
         """Start the main loop for the game"""
@@ -50,6 +52,27 @@ class AlienInvasion:
                 self._check_keydown_events(event)
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                self._check_mouse_pos(mouse_pos)
+
+    def _check_mouse_pos(self, mouse_pos):
+        """checks if we clickes the play button or not"""
+        # reset when the mouse is clicked and only when the game is not active
+        if self.play_button.rect.collidepoint(mouse_pos) and not self.game_active:
+            self.stats.reset_stats()
+            self.game_active = True
+
+            #get rid of bullets and aliens
+            self.bullets.empty()
+            self.aliens.empty()
+
+            #center ship and create a fleet
+            self._create_fleet()
+            self.ship._center_ship()
+
+            #make mouse invisile
+            pygame.mouse.set_visible(False)
 
     def _create_fleet(self):
         """creatres the fleet of aliens"""
@@ -83,6 +106,11 @@ class AlienInvasion:
             bullet.draw_bullet()
         self.aliens.draw(self.screen)
         # make the recent screen visible
+
+        #draw play button when game is inactive
+        if not self.game_active:
+            self.play_button.draw_button()
+
         pygame.display.flip()
 
     def _check_keydown_events(self, event):
@@ -162,6 +190,7 @@ class AlienInvasion:
             sleep(0.5)
         else:
             self.game_active = False
+            pygame.mouse.set_visible(True)
 
     def _check_fleet_edges(self):
         """checks for edge collision"""
